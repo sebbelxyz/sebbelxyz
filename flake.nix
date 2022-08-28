@@ -9,13 +9,11 @@
     };
   };
   outputs = { self, nixpkgs, flake-compat, flake-utils }:
-    let
-      system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
-    in {
-      packages.${system}.hello = pkgs.hello;
-      defaultPackage.${system} = self.packages.${system}.hello;
-      devShell.${system} =
-        pkgs.mkShell { buildInputs = with pkgs; [ nixfmt ]; };
-    };
+    flake-utils.lib.eachDefaultSystem (system:
+      let pkgs = nixpkgs.legacyPackages.${system};
+      in {
+        packages.hello = pkgs.hello;
+        defaultPackage = self.packages.hello;
+        devShell = pkgs.mkShell { buildInputs = with pkgs; [ nixfmt ]; };
+      });
 }
